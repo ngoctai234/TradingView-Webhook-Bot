@@ -19,28 +19,44 @@ def get_timestamp():
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
-    whitelisted_ips = ['52.89.214.238', '34.212.75.30', '54.218.53.128', '52.32.178.7']
-    client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+    whitelisted_ips = config.whitelisted_ips
+    client_ip = request.headers.get("X-Forwarded-For", request.remote_addr)
     if client_ip not in whitelisted_ips:
-        return jsonify({'message': 'Unauthorized'}), 401
+        print(
+            "[X]",
+            get_timestamp(),
+            f"Alert Received & Refused! (Unauthorized IP: {client_ip})",
+        )
+        return jsonify({"message": "Unauthorized"}), 401
     try:
         if request.method == "POST":
-            data = request.get_json()
-            if data["key"] == config.sec_key:
+            key = request.args.get("key")
+            if key == config.sec_key:
+                msg = request.get_data(as_text=True).strip()
+                telegram = request.args.get("telegram")
+                discord = request.args.get("discord")
+                slack = request.args.get("slack")
+                data = {"msg": msg}
+                if telegram:
+                    data["telegram"] = telegram
+                if discord:
+                    data["discord"] = discord
+                if slack:
+                    data["slack"] = slack
                 print(get_timestamp(), "Alert Received & Sent!")
                 send_alert(data)
-                return jsonify({'message': 'Webhook received successfully'}), 200
+                return jsonify({"message": "Webhook received successfully"}), 200
 
             else:
                 print("[X]", get_timestamp(), "Alert Received & Refused! (Wrong Key)")
-                return jsonify({'message': 'Unauthorized'}), 401
+                return jsonify({"message": "Unauthorized"}), 401
 
     except Exception as e:
         print("[X]", get_timestamp(), "Error:\n>", e)
-        return jsonify({'message': 'Error'}), 400
+        return jsonify({"message": "Error"}), 400
 
 
 if __name__ == "__main__":
     from waitress import serve
 
-    serve(app, host="0.0.0.0", port=8080)
+    serve(app, host="0.0.0.0", port=8090)

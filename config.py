@@ -9,6 +9,8 @@
 # "key":"9T2q394M92", "telegram":"-1001298977502", "discord":"789842349670960670/BFeBBrCt-w2Z9RJ2wlH6TWUjM5bJuC29aJaJ5OQv9sE6zCKY_AlOxxFwRURkgEl852s3", "msg":"Long #{{ticker}} at `{{close}}`"
 # }
 
+whitelisted_ips = ["52.89.214.238", "34.212.75.30", "54.218.53.128", "52.32.178.7"]
+
 sec_key = (
     ""  # Can be anything. Has to match with "key" in your TradingView alert message
 )
